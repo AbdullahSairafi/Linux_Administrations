@@ -1,0 +1,610 @@
+# Managing Files from CLI
+
+## Command-line File Management
+| Activity | Syntax |
+| ----------- | ----------- |
+| Create a directory | `mkdir directory` |
+| Copy a file | `cp file new-file` |
+| Copy a directory and its contents | `cp -r directory new-directory` |
+| Move or rename a file or director | `mv file new-file` |
+| Remove a file | `rm file` |
+| Remove a directory containing files | `rm -r directory` |
+| Remove an empty directory | `rmdir directory` |
+
+## Making Links Between Files
+
+### Hard Links
+
+`$ ln <src_file> <dst_file>`
+
+*Note: `<dst_file>` is created by ln command and shouldn't exist beforehand*
+
+Example:
+
+`$ ln newfile.txt /tmp/newfile-hlink2.txt`
+
+### Soft Links
+
+`$ ln -s <src_file> <dst_file>`
+
+*Note: `<dst_file>` is created by ln command and shouldn't exist beforehand*
+
+Example:
+
+`$ ln -s /home/user/newfile-link2.txt /tmp/newfile-symlink.txt`
+
+---
+
+# Creating, Viewing, and Editing Text Files
+
+## Redirecting Output to a File or Program
+
+| Usage | Explanation |
+| ----------- | ----------- |
+| > file | redirect **stdout** to overwrite `file` |
+| >> file | redirect **stdout** to append to `file` |
+| 2> file | redirect **stderr** to overwrite `file` |
+| 2> /dev/null | discard **stderr** error messages by redirecting to `/dev/null` |
+| file 2>&1 | redirect **stdout** and **stderr** to  overwrite the same `file`
+| &> file | redirect **stdout** and **stderr** to  overwrite the same `file` |
+| >> file 2>&1 | redirect **stdout** and **stderr** to append to the same `file` |
+| &>> file | redirect **stdout** and **stderr** to append to the same `file` |
+
+## Constructing Pipelines
+
+Example:
+
+`$ ls -l /usr/bin | less`
+
+### Pipes with `tee` Command
+
+Example:
+
+`$ ls -l | tee /tmp/saved-output | less`
+
+---
+
+# Managing Local Users and Groups
+
+the `id <user>` command displays information about a user.
+
+Example:
+
+`$ id root`
+
+By defaults, users are stored in `/etc/passwd` file.
+
+| Entry | File |
+| ----------- | ----------- |
+| Users | `/etc/passwd` |
+| Groups | `/etc/group` |
+| Passwords  *encrypted* | `/etc/shadow` |
+
+### Switching Users
+the `su - <user>` command allows users to switch to a different account.
+
+Example:
+
+`$ su - user1`
+
+*Note*: if user is ommited, the `su` command will switch to `root` user by default.
+
+*Note*: the `-` (dash option) sets up the shell environment to the target user.
+
+### Running Commands with Sudo
+It is possible gain superuser previliges using `sudo` command instead of logging into `root` user.
+
+
+### configuring Sudo
+
+To enable full `sudo` access for the user `user01`, you could create `/etc/sudoers.d/user01` with the following content:
+
+`user01 ALL=(ALL) ALL`
+
+To enable full sudo access for the group group01, you could create `/etc/sudoers.d/group01` with the following content:
+
+`%group01 ALL=(ALL) ALL`
+
+It is also possible to set up sudo to allow a user to run commands as another user without entering their password:
+
+`user01 ALL=(ALL) NOPASSWD:ALL`
+## Managing Local Users
+
+### Creating Users
+
+The following command creates a user named `username`. At this point, cannot log in until a password is set.
+
+`$ useradd username`
+
+Run the following command to display basic options with `useradd` command
+
+`$ useradd --help`
+
+### Modifying Existing Users
+
+Use the following command to display basic options that can be used to modify an account
+
+`$ usermod --help`
+
+| `usermod` options | Usage |
+| ----------- | ----------- |
+| `-c, --comment COMMENT` | Add the user's real name to the comment field. |
+| `-g, --gid GROUP` | Specify the primary group for the user account. |
+| `-G, --groups GROUPS` | Specify a comma-separated list of supplementary groups for the user account. |
+| `-a, --append` | Used with the `-G` option to add the supplementary groups to the user's current set of groups.  |
+| `-d, --home HOME_DIR` | Specify a particular home directory for the user account. |
+| `-m, --move-home` | Move the user's home directory to a new location. Must be used with the `-d` option. |
+| `-s, --shell SHELL` | Specify a particular login shell for the user account. |
+| `-L, --lock` | Lock the user account. |
+| `-U, --unlock` | Unlock the user account. |
+
+
+### Deleting Users
+The `$ userdel username` command removes the details of `username` from `/etc/passwd`, but leaves the user's home directory intact.
+
+The `userdel -r username` command removes the details of `username` from `/etc/passwd` and also deletes the user's home directory.
+
+### Setting Passwords
+The `$ passwd username` command sets the initial password or changes the existing password of `username`.
+
+The `root` user can set a password to any value. A message is displayed if the password does not meet the minimum recommended criteria, but is followed by a prompt to retype the new password and all tokens are updated successfully.
+
+**Exercise:**
+
+1. Create the operator1 user and confirm that it exists in the system.
+
+
+&emsp;&emsp;&emsp;`$ useradd operator1`
+  
+&emsp;&emsp;&emsp;`$ tail /etc/passwd`
+
+2. Set the password for operator1 to redhat.
+
+&emsp;&emsp;&emsp;`$ passwd operator1`
+
+&emsp;&emsp;&emsp;New password: `redhat`
+
+
+3. Add a secondary group `wheel` to operator1
+
+&emsp;&emsp;&emsp;`$ usermod -aG wheel operator1`
+
+4. Delete the `operator1` user along with any personal data of the user. Confirm that the user is successfully deleted.
+
+&emsp;&emsp;&emsp;`$ userdel -r operator1`
+
+&emsp;&emsp;&emsp;`$ tail /etc/passwd`
+## Managing Local Groups
+
+### Creating Groups
+
+The `groupadd` command creates groups. Without options the groupadd command uses the
+next available GID from the range specified in the `/etc/login.defs` file while creating the groups.
+
+The `-g` option specifies a particular GID for the group to use.
+
+Example: 
+
+`$ sudo groupadd group01`
+
+or 
+
+`$ sudo groupadd -g 10000 group01`
+
+The `-r` option creates a system group using a GID from the range of valid system GIDs listed in the /etc/login.defs file. The SYS_GID_MIN and SYS_GID_MAX configuration items in `/ etc/login.defs` define the range of system GIDs.
+
+Example:
+
+`$ sudo groupadd -r group02`
+
+### Modifying Existing Groups
+
+The `groupmod` command changes the properties of an existing group. The `-n` option specifies a new name for the group.
+
+
+### Deleting Groups
+
+The `groupdel` command removes groups.
+
+`$ sudo groupdel group0022`
+
+### Changing Group Membership
+
+The membership of a group is controlled with user management. Use the `usermod -g`
+command to change a user's primary group.
+
+`$ sudo usermod -g group01 user02`
+
+Use the `usermod -aG` command to add a user to a supplementary group.
+
+`$ sudo usermod -aG group01 user03`
+
+## Manging User Passwords
+
+### Password Aging
+
+`$ sudo chage -m 0 -M 90 -W 7 -I 14 user03`
+
+The preceding chage command uses the following options
+
+| Option | Usage |
+| ----------- | ----------- |
+| `-d` | Set the number of days since January 1st, 1970 when the password was last changed. The date may also be expressed in the format YYYY-MM-DD (or the format more commonly used in your area). |
+| `-E` | Set the date or number of days since January 1, 1970 on which the user's account will no longer be accessible. The date may also be expressed in the format YYYY-MM-DD.| 
+| `-I` | Set the number of days of inactivity after a password has expired before the account is locked. |
+| `-l` | Show account aging information. |
+| `-m` | Set the minimum number of days between password changes to MIN_DAYS. A value of zero for this field indicates that the user may change his/her password at any time. |
+| `-M` | Set the maximum number of days during which a password is valid. |
+| `-W` | Set the number of days of warning before a password change is required. |
+
+### Nologin Shell
+
+the following command disables interactive shell for `user1`
+
+`$ usermod -s /sbin/nologin user1`
+
+---
+
+# Controlling Access to Files
+
+## Changing File and Directory Permissions
+
+### Changing Permissions with the Symbolic Method
+
+`$ chmod WhoWhatWhich file|directory`
+
+- Who is u, g, o, a (for user, group, other, all)
+- What is +, -, = (for add, remove, set exactly)
+- Which is r, w, x (for read, write, execute)
+
+Example:
+
+`$ chmod u=rwx, g+x, o-rwx file1`
+
+Note:
+
+The chmod command supports the -R option to recursively set permissions on the files in an entire directory tree.
+
+### Changing Permissions with the Numeric Method
+
+`$ chmod ### file|directory` 
+- Each digit represents permissions for an access level: *user, group, other*.
+- The digit is calculated by adding together numbers for each permission you want to add, 4 for
+read, 2 for write, and 1 for execute.
+
+Example:
+
+Set read and write permissions for user, read permission for group and other, on `samplefile`
+
+`$ chmod 644 samplefile`
+
+## Changing File and Directory User or Group Ownership
+
+Note: 
+
+Only `root` can change the user that owns a file. However, *Group* ownership can be set by `root` or by the file's *owner*
+
+`# chown owner:group file|directory`
+
+Example:
+
+change `test_file` owner to `student`
+
+`# chown student test_file` 
+
+chown can be used with the -R option to recursively change the ownership of an entire directory
+tree.
+
+`# chown -R student test_dir`
+
+## Special Permissions
+
+| Special permission | Effect on files | Effect on directories |
+| ----------- | ----------- | ----------- |
+| `u+s` (suid) | File executes as the user that owns the file, not the user that ran the file. |  No effect. | 
+| `g+s` (sgid) | File executes as the group that owns the file. | Files newly created in the directory have their group owner set to match the group owner of the directory. |
+| `o+t` (sticky) | No effect. | Users with write access to the directory can only remove files that they own; they cannot remove or force saves to files owned by other users.
+
+### Setting Special Permissions
+
+- Symbolically: setuid = u+s; setgid = g+s; sticky = o+t
+
+- Numerically (fourth preceding digit): setuid = 4; setgid = 2; sticky = 1
+
+&emsp;&emsp;
+
+Examples:
+
+Add the setgid bit on directory:
+
+&emsp;`$ chmod g+s directory`
+
+Set the setgid bit and add read/write/execute permissions for user and group with no access for others, on directory:
+
+&emsp;`$ chmod 2770 directory`
+
+## Default File Permissions
+
+The `umask` command prints the default file permissoins
+
+A umask of 027 ensures that new files have read and write permissions for user and read
+permission for group. New directories have read and write access for group and no permissions for
+other
+
+Note: to presistently update the umask value, write it to the `~/.bashrc` file.
+
+Example:
+
+`$ echo "umask 007" >> ~/.bashrc`
+
+---
+
+# Monitoring and Managing Linux Processes
+
+## Listing Processes
+
+Two common commands to inspect running processes
+
+1. `$ top`
+2. `$ ps -aux`
+
+## Controlling Jobs
+
+### Running Jobs in background
+
+Syntax:  `$ <command> &`
+
+Example:
+
+`$ sleep 10000 &`
+
+the `$ jobs` command lists current jobs
+
+A background `job` can be brought to the foreground by using the `fg` command with its job ID *(%job number).*
+
+Example: 
+
+`$ fg %1`
+
+Similarly, a job can be brought to the background using the `bg` command with its job ID *(%job number)*
+
+Example: 
+
+`$ bg %1`
+
+
+## Killing Processes
+
+### Process control using signals
+
+
+You can use the
+`$ kill -l` command to list the names and numbers of all available signals.
+
+To kill a process
+
+Syntax: 
+
+1. `$ kill <PID>`
+2. `$ kill -SIGKILL <PID>`
+3. `$ kill -9 <PID>`
+
+Note: use `top` or `ps -aux` to find the process id.
+
+---
+
+# Controlling Services and Daemons
+
+
+
+## Listing Service Units
+
+`$ systemctl list-units --type=service`
+
+## Viewing Service States
+
+Syntax:
+
+`$ systemctl status <service>`
+
+Example: 
+
+`$ systemctl status sshd.service`
+
+## Verifying the Status of a Service
+
+Syntax: 
+
+`$ systemctl is-active <service>`
+
+`$ systemctl is-enabled <service>`
+
+`$ systemctl is-failed <service>`
+
+Example:
+
+`$ systemctl is-active sshd.service`
+
+
+## Summary of systemctl Commands
+
+| Task | Command |
+| ----------- | ----------- |
+View detailed information about a unit state. | `$ systemctl status  <UNIT>` |
+| Stop a service on a running system. |`$ systemctl stop  <UNIT>` | 
+| Start a service on a running system. | `$ systemctl start  <UNIT>` |
+| Restart a service on a running system. | `$ systemctl restart  <UNIT>` |
+| Reload the configuration file of a running service. | `$ systemctl reload  <UNIT>` |
+| Completely disable a service from being started, both manually and at boot. | `$ systemctl mask  <UNIT>` |
+| Make a masked service available. | `$ systemctl unmask  <UNIT>` |
+| Configure a service to start at boot time. | `$ systemctl enable  <UNIT>` |
+| Disable a service from starting at boot time. | `$ systemctl disable  <UNIT>` |
+| List units required and wanted by the specified unit. | `$ systemctl list-dependencies  <UNIT>` |
+
+---
+
+# Configuring and Securing SSH
+
+## Configuring SSH Key-based Authentication
+
+### Generating SSH Keys
+
+Use the `$ ssh-keygen` command to generate a private and public key pair.
+
+Note: use a custom name when generating a key otherwise it will use the default files `~/.ssh/id_rsa` and `~/.ssh/id_rsa.pub` respectively. If default keys were used before, they will be overwritten.
+
+### Sharing the Public Key
+
+Syntax:
+
+`$ ssh-copy-id -i <public_key> username@server`
+
+Example:
+
+`$ ssh-copy-id -i .ssh/key-with-pass.pub user@remotehost`
+
+Note: if the remote server was not in the `/etc/hosts` file, then connect using the IP address.
+
+### Logging in with Key-based Authentication
+
+Use the public key to log into the remote host.
+
+`$ ssh -i .ssh/key-with-pass user@remotehost`
+
+
+## Customizing OpenSSH Service Configuration
+
+OpenSSH service is provided by a daemon called sshd. Its main configuration file is `/etc/ssh/sshd_config`
+
+### Prohibit the Superuser From Logging in Using SSH
+
+The OpenSSH server uses the PermitRootLogin configuration setting in the `/etc/ssh/sshd_config` configuration file to allow or prohibit users logging in to the system as root.
+
+in the above file, by defualt, the parameter :
+
+`PermitRootLogin yes`
+
+To prevent root from loggin in set the parameter to **no**
+
+`PermitRootLogin no`
+
+### Prohibiting Password-Based Authentication for SSH
+
+Set the `PasswordAuthentication` parameter to **no**
+
+`$ PasswordAuthentication no`
+
+Note: after modifyin the `/etc/ssh/sshd_config` file, reload the `sshd` daemon.
+
+`$ systemctl reload sshd`
+
+---
+
+# Analyzing and Storing Logs
+
+Coming Soon
+
+# Managing Networking
+
+## Configuring Networking from the Command Line
+
+### Describing NetworkManager Concepts
+
+*Note: Command-line and graphical tools talk to **NetworkManager** and save configuration files in the `/etc/sysconfig/network-scripts` directory.*
+
+- A device is a network interface.
+- A connection is a collection of settings that can be configured for a device.
+- The nmcli utility is used to create and edit connection files from the command line.
+
+### Adding a network connection
+
+Example1:
+
+The following command adds a connection profile with the following settings:
+
+- connection name `eno2`
+- connection type is `ethernet`
+- interface/device `enp0s3`
+- Takes *ipv4* and *ipv6* information from **DHCP**
+
+`$ nmcli con add con-name eno2 type ethernet ifname enp0s3`
+
+Example2: 
+ 
+
+`$ nmcli con add con-name eno2 type ethernet ifname enp0s3 
+ipv4.address 192.168.0.5/24 ipv4.gateway 192.168.0.254`
+
+### Summary of Commands
+
+| Command | Usage | 
+| ----------- | ----------- |
+| `$ nmcli dev status` | Show the NetworkManager status of all network interfaces. |
+| `$ nmcli con show` | List all connections. |
+| `$ nmcli con show name` | List the current settings for the connection name. |
+| `$ nmcli con add con-name name` | Add a new connection named name. |
+| `$ nmcli con mod name` | Modify the connection name. | 
+| `$ nmcli con reload` | Reload the configuration files (useful after they have been edited by hand). |
+| `$ nmcli con up name` | Activate the connection name. | 
+| `$ nmcli dev dis dev` | Deactivate and disconnect the current connection on the network interface dev. |
+| `$ nmcli con del name` | Delete the connection name and its configuration file. |
+
+
+*Note: add help after the command in question and help menu will be displayed*
+
+`$ nmcli con add help`
+
+### Editing Network Configuration Files
+
+By default, changes made with `nmcli con mod name` are automatically saved to `/etc/sysconfig/network-scripts/ifcfg-name`. That file can also be manually edited with a text
+editor. After doing so, `run nmcli con reload` so that `NetworkManager` reads the configuration
+changes.
+
+## Configuring Host Names and Name Resolution
+
+### Changing Host Name
+
+`$ hostnamectl set-hostname host.example.com`
+
+---
+
+# Archiving and Transferring Files
+
+## Managing Compressed tar Archives
+
+### Summary of tar Commands
+
+| Command | Usage |
+| ----------- | ----------- |
+| `$ tar -cf archive.tar file1 file2` | Create an `archive.tar` with contents `file1` and `file2` |
+| `$ tar -tf archive.tar` | list the contents of the archive file. |
+| `$ tar -xf archive.tar` | extract files from archive file |
+| `$ tar -czf archive.tar.gz /etc` | Create a `gzip` compressed archive file with contents of `/etc` |
+| `$ tar -cjf archive.tar.bz2 /etc` | Create a `bzip2` compressed archive file with contents of `/etc` |
+| `$ tar -cJf archive.tar.xz /etc` | Create a `xz` compressed archive file with contents of `/etc` |
+| `$ tar -xzf archive.tar.gz` | Extracts `gzip` compressed archive. |
+| `$ tar -xjf archive.tar.bz2` | Extracts `bzip2` compressed archive. |
+| `$ tar -xJf archive.tar.xz` | Extracts `xz` compressed archive. |
+
+## Transferring Files Between Systems Securely
+
+### Summary of scp command
+
+| Command | Usage |
+| ----------- | ----------- |
+| `$ scp ~/file1 remoteuser@remotehost:/home` | copy `file1` from local host to remote host `/home` directory. | 
+| `$ scp remoteuser@remotehost:~/file1 /home` | copy `file1` from remote host to local host `/home` directory. |
+
+*Note: to copy a directory, use `-r` option with `scp` command.*
+
+Another option to transfer files is `sftp` command.
+
+- use `put` command to send files or directories from **local** host to **remote** host.
+- use `get` command to send files or directories from **remote** host to **local** host. 
+
+--- 
+
+# Accessing Linux File System
+
+Coming Soon :)
+
