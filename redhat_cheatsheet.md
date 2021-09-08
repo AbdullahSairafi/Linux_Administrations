@@ -608,3 +608,102 @@ Another option to transfer files is `sftp` command.
 
 Coming Soon :)
 
+--- 
+
+# Scheduling Future Tasks
+
+## Scheduling a Deferred User Job
+
+`$ echo "date >> /home/student/myjob.txt" | at now +3min`
+
+- Use `$ atq` to list scheduled jobs.
+- Use `$ atrm <JOB_NUMBER>` to remove a job.
+
+
+## Scheduling Recurring User Jobs
+
+`Crontab` options.
+
+| Command | Usage | 
+| ----------- | ----------- | 
+| `$ crontab -l` | List the jobs for current user. |
+| `$ crontab -r` | Remove all jobs from current user. |
+| `$ crontab -e` | Edit jobs for the current user. |
+| `$ crontab filename` | Remove all jobs, and replace with the jobs read from `filename`. If no file is specified, **stdin** is used. |
+
+*Note: the fields in a `crontab` file appear in the following order:
+
+`MINS HRS DAY_OF_MONTH MONTH DAY_OF_WEEK COMMAND`
+
+Syntax rules for all five fields in `crontab` file.
+
+| Rule | Description | 
+| ----------- | ----------- |
+| `*` | Always | 
+|  `NUMBER` | Specify the number of mins, hrs or weekdays. |
+| `x-y` | range from `x` to `y` inclusive. both `x` & `y` are numbers.|
+|`x,y` | for lists. Lists can include ranges as well, for example, 5,10-13,17. | 
+| `*/x` | to indicate an interval of x. `*/7` in the Mins column runs a job every 7 minutes. |
+
+*Note: 3-letter abbreviations can be used with days and months, for example, `Jan, Feb, Mon, Wed`, etc.* 
+
+Example1:
+
+The following executes the command `echo "hello world` at exactly
+9 a.m. on February 2nd, every year.
+
+`$ 0 9 2 2 * echo "hello world"`
+
+Example2: 
+
+The following executes the command `echo "hello world` every five
+minutes between 9 a.m. and 5 p.m., on every Friday in July.
+
+`$ */5 9-16 * Jul 5 echo "hello world"`
+
+Example3: 
+
+`$ */2 08-20 * * Mon-Fri /usr/bin/date >> /home/student/my_first_cron_job.txt`
+
+---
+
+# Tuning System Performance
+
+## Adjusting Tuning Profiles
+
+### Selecting Tuning Profiles
+
+Tuned commands 
+
+| Command | Usage | 
+| ----------- | ----------- |
+| `$ tuned-adm list` | lists all available tuning profiles. |
+| `$ tuned-adm active` | Display currently active profile. |
+| `$ tuned-adm profile profilename` | change active profile. | 
+| `$ tuned-adm recommend` | display recommended profile. | 
+
+Example:
+
+change active profile to `throughput-performance`
+
+`$ tuned-adm profile throughput-performance`
+
+## Influencing Process Scheduling
+
+
+### Summary of nice and renice commands
+
+| Command Syntax | Usage |
+| ----------- | ----------- |
+| `$ nice -n <NICE_LVL> COMMAND` | Start a process with custom nice level. |
+| `$ renice -n <NICE_LVL> <PID>` | update the renice value of a process. |
+
+Examples:
+
+`$ nice -n 15 sha1sum &`
+
+`$ renice -n 19 3521`
+
+--- 
+
+# Controlling Access to Files with ACLs
