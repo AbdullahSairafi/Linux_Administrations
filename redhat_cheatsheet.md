@@ -707,3 +707,17 @@ Examples:
 --- 
 
 # Controlling Access to Files with ACLs
+
+## Interpreting File ACLs
+
+### Summary of ACLs Commands
+
+| Command | Usage | 
+| ----------- | ----------- |
+| `$ getfacl file` | View the ACL for `file`. | 
+| `$ setfacl -m u:name:rX file` | Add or modify a user or named user ACL. If `name` is blank, then rule applies to file *owner*. |
+| `$ setfacl -m g:name:rw file` | o add or modify a group or named group ACL. If `name` is blank, then rule applies to group *owner*. |
+| `$ setfacl -m o::- file` | add or modify the other ACL. |
+| `$ getfacl file-A \| setfacl --set-file=- file-B` | use the output from getfacl as input to setfacl. The --set-file option accepts input from a file or from stdin. The dash character (-) specifies the use of stdin. In this case, file-B will have the same ACL settings as file-A.
+| `$ setfacl -x u:name,g:name file` | Deleting specific ACL entries. |
+| `$ setfacl -m d:u:name:rx directory` | Adds a default named user. |
