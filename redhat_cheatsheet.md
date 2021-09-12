@@ -721,3 +721,86 @@ Examples:
 | `$ getfacl file-A \| setfacl --set-file=- file-B` | use the output from getfacl as input to setfacl. The --set-file option accepts input from a file or from stdin. The dash character (-) specifies the use of stdin. In this case, file-B will have the same ACL settings as file-A.
 | `$ setfacl -x u:name,g:name file` | Deleting specific ACL entries. |
 | `$ setfacl -m d:u:name:rx directory` | Adds a default named user. |
+
+--- 
+
+# Managing SELinux Security
+
+Coming Soon ;)
+
+# Managing Basic Storage
+
+## Adding Partitions, File Systems, and Persistent Mounts
+
+### Summary of parted commands
+
+| Command | Usage | 
+| ----------- | ----------- |
+| `$ parted /dev/sdb` | Open interactive session to mangage `sdb` |
+| `$ mklabel msdos` | Write an MBR disk label. |
+| `$ mklabel gpt` | Write a GPT disk label. |
+| `$ mkpart` | Create a partiotion interactively. |
+| `$ udevadm settle` | Wait for the system to detect the new partition. |
+| `$ rm <PARTITION_NUMBER>` | Delete a partition. |
+| `$ mkfs.xfs /dev/sdb1` | Create `xfs` file system on `/dev/sdb1` |
+| `$ mkfs.ext4 /deb/sdb1` | Create `ext4` file system on `/dev/sdb1` |
+| `$ mount /dev/sdb1 /mnt` | Manually mount `/dev/sdb1` to `/mnt` directory. |
+
+*Note: you can explore parted commands more with help option. For example,* `$ help mkpart` *will display how to use* `mkpart`
+
+### Persistantly Mounting File Systems
+
+Add the device using its `UUID` to the `/etc/fstab`. Use `lsblk --fs` to display `UUID` for block devices. 
+
+Entry fields in `/etc/fstab` file:
+
+1- UUID of the device, alternatively, you can use device file such as `/dev/sdb1`
+
+2- The directory mount point(it must exist beforehand).
+
+3- File system type such as `xfs` or `ext4`
+
+4- comma-separated list of options to apply to the device. `defaults` is a set of commonly used options.
+
+5- Used by the `dump` command to back up the device. Other backup applications do not usually use this field.
+
+6- The last field, the fsck order field, determines if the fsck command should be run at system boot to verify that the file systems are clean. The value in this field indicates the order in which fsck should run. For XFS file systems, set this field to 0 because XFS does not use fsck to check its file-system status. For ext4 file systems, set it to 1 for the root file system and 2 for the other ext4 file systems. This way, fsck processes the root file system first and then checks file systems on separate disks concurrently, and file systems on the same disk in sequence.
+
+Example of an entry in the `/etc/fstab` file:
+
+`UUID=7a20315d-ed8b-4e75-a5b6-24ff9e1f9838 /dbdata xfs defaults 0 0`
+
+*Note: run* `$ systemctl daemon-reload` *after modifying* `/etc/fstab` *file.*
+
+## Creating Swap Space
+Use the following commands to create and activate swap space.
+
+| Command | Usage |
+| ----------- | ----------- |
+| `$ mkswap /dev/sdb2` | Apply swap signature to device.
+| `$ swapon /dev/sdb2` | Activate a formatted swap space. |
+| `$ swapoff /dev/sdb2` | deactivate a formatted swap space. |
+
+### Persistantly Activating Swap Space
+
+Add an entry in `/etc/fstab`
+
+Example:
+
+`UUID=39e2667a-9458-42fe-9665-c5c854605881 swap swap defaults 0 0`
+
+Swap Priorities: Kernel uses swap space with higer priority first.
+
+Example: 
+
+`UUID=39e2667a-9458-42fe-9665-c5c854605881 swap swap pri=4 0 0`
+
+--- 
+
+# Managing Logical Volumes
+
+## Creating Logical Volumes
+
+1- prepare the physical device:
+    
+    `$ parted -s /dev/sdb mklabel gpt`
