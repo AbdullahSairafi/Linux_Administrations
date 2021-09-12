@@ -803,4 +803,46 @@ Example:
 
 1- prepare the physical device:
     
-    `$ parted -s /dev/sdb mklabel gpt`
+```
+$ parted -s /dev/sdb mklabel gpt
+$ parted -s /dev/sdb mkpart primary 1MiB 257MiB
+$ parted -s /dev/sdb mkpart primary 258MiB 514MiB 
+$ parted -s /dev/sdb set 1 lvm on
+$ parted -s /dev/sdb set 2 lvm on 
+$ udevadm settle
+```
+
+2- Create a physical volume:
+
+```
+$ pvcreate /dev/sdb1 /dev/sdb2
+```
+
+3- Create a volume groupe:
+
+```
+$ vgcreate vg01 /dev/sdb1 /dev/sdb2
+```
+4- Create a logical volume:
+
+```
+$ lvcreate -n lv01 -L 700M vg01
+```
+
+5- Add the file system and mount it
+
+```
+$ mkfs.xfs /dev/vg01/lv01
+$ mkdir /mnd/data 
+```
+add the entry into `/etc/fstab`
+
+```
+/dev/vg01/lv01 /mnt/data xfs defaults 1 2
+```
+
+and mount `/mnt/data`
+
+```
+$ mount /mnt/data
+```
