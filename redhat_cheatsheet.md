@@ -976,6 +976,8 @@ $ mkfs.xfs -K /dev/mapper/vdo1
 # mount the file system
 $ mkdir /mnt/vdo1
 $ mount /dev/mapper/vdo1 /mnt/vdo1
+# Persistantly mound VDO (entry in /etc/fstab file)
+UUID=ef8c...39b1 /mnt/vdo xfs defaults,x-systemd.requires=vdo.service 0 0
 ```
 4- Analyzing a VDO Volume
 ```bash
@@ -988,7 +990,15 @@ $ vdo list
 # Start and stop VDO volumes
 $ vdo start -n vdo1
 $ vdo stop -n vdo1
+# View statistics and status of VDO volumes
+$ vdostats --human-readable
 ```
 ---
 
 # Accessing Network-Attached Storage
+
+## Configuring NFS Server and Client
+
+Please follow the steps in this link:
+https://www.thegeekdiary.com/centos-rhel-7-configuring-an-nfs-server-and-nfs-client/
+
