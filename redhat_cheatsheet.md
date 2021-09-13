@@ -915,3 +915,80 @@ $ lvextend -l +extents /dev/vgname/lvname
 # Format the logical volume as swap space
 $ swapon -va /dev/vgname/lvname
 ```
+
+--- 
+
+# Implementing Advanced Storage Features
+
+## Managing Layered Storage with Stratis
+
+1- Install and activate stratis daemon
+```bash
+$ yum install stratis-cli stratisd
+$ systemctl enable --now stratisd
+```
+
+2- Assembling Block Storage into Stratis Pools
+```bash
+# Create pools of one or more block devices
+$ stratis pool create pool1 /dev/vdb
+# list all avaiable pools
+$ stratis pool list
+# add additional block devices to a pool.
+$ stratis pool add-data pool1 /dev/vdc
+# view the block devices of a pool.
+$ stratis blockdev list pool1
+```
+3- Managing Stratis File Systems
+```bash
+# create a file system from a pool.
+$ stratis filesystem create pool1 fs1
+# view the list of available file systems.
+$ stratis filesystem list
+# create a snapshot of a Stratis-managed file system
+$ stratis filesystem snapshot pool1 fs1 snapshot1
+```
+4- Persistently Mounting Stratis File Systems
+```bash
+# Find UUID of the file system
+$ lsblk --fs
+# Sample entry in the /etc/fstab file
+UUID=31b9363b-add8-4b46-a4bf-c199cd478c55 /dir1 xfs defaults,x-systemd.requires=stratisd.service 0 0
+```
+&emsp; *Note: The x-systemd.requires=stratisd.service mount option delays mounting the file system until after systemd starts the stratisd.service during the boot process.*
+
+## Compressing and Deduplicating Storage with VDO
+
+1- Installing VDO
+```bash
+$ yum install vdo kmod-kvdo
+```
+
+2- Creating a VDO Volume
+```bash
+$ vdo create --name=vdo1 --device=/dev/vdd --vdoLogicalSize=50G
+```
+*Note: If you omit the logical size, the resulting VDO volume gets the same size as its physical device.*
+
+3- Format the vdo1 volume with the XFS file system
+```bash
+$ mkfs.xfs -K /dev/mapper/vdo1
+# mount the file system
+$ mkdir /mnt/vdo1
+$ mount /dev/mapper/vdo1 /mnt/vdo1
+```
+4- Analyzing a VDO Volume
+```bash
+# Display status of all VDO volumes
+$ vdo status
+# Display status of a specific VDO volume
+$ vdo status --name=vdo1
+# List all started VDO
+$ vdo list
+# Start and stop VDO volumes
+$ vdo start -n vdo1
+$ vdo stop -n vdo1
+```
+---
+
+# Accessing Network-Attached Storage
