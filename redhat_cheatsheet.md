@@ -829,6 +829,10 @@ $ vgcreate vg01 /dev/sdb1 /dev/sdb2
 $ lvcreate -n lv01 -L 700M vg01
 ```
 
+- lvcreate -L 128M: Size the logical volume to exactly 128 MiB.
+- lvcreate -l 128 : Size the logical volume to exactly 128 extents. The total number of bytes
+depends on the size of the physical extent block on the underlying physical volume.
+
 5- Add the file system and mount it
 
 ```
@@ -845,4 +849,69 @@ and mount `/mnt/data`
 
 ```
 $ mount /mnt/data
+```
+
+### Removing a Logical Volume
+
+```
+$ umount /mnt/data
+$ lvremove /dev/vg01/lv01
+$ vgremove vg01
+$ pvremove /dev/sdb1 /dev/sdb2
+```
+
+### Reviewing LVM Status Information
+
+| Command | Usage |
+| ----------- | ----------- |
+| `pvdisplay /dev/sdb1` | Display physical volume info. |
+| `vgdisplay vg01` | Display volume group info. |
+| `lvdisplay /dev/vg01/lv01` | Display logical volume info. |
+
+
+## Extending Logical Volumes
+
+1- Extending a Volume Group
+```bash
+# Create a partition and physical volume
+$ parted -s /dev/vdb mkpart primary 1027MiB 1539MiB
+$ parted -s /dev/vdb set 3 lvm on
+$ pvcreate /dev/vdb3
+# Extend volume group
+$ vgextend vg01 /dev/vdb3
+```
+2- Reducing a Volume Group
+```bash
+# Move physical extents in vdb3 to other physical volumes
+$ pvmove /dev/vdb3
+# reduce volume group
+$ vgreduce vg01 /dev/vdb3
+# (Optional) Stop using device as a physical volume
+$ pvremove /dev/vdb3
+```
+3- Extending a Logical Volume
+``` bash
+# Add additional 100MiB to logical volume.
+$ lvextend -L +100M /dev/vg01/lv01
+# Alternatively, you can physical extents
+$ lvextend -l +100 /dev/vg01/lv01
+# or you can set the size of logical volume 
+$ lvextend -L 100M /dev/vg01/lv01
+```
+4- Extending File Systems (xfs, ext4)
+```bash
+# extending xfs file system
+$ xfs_growfs /mnt/data
+# Extending ext4 file system
+$ resize2fs /dev/vg01/lv01
+# Verify the new size of mounted file sysem
+$ df -h /mnt/data
+```
+5- Extending Swap Space
+```bash
+# Deactivate swap space and extend lv 
+$ swapoff -v /dev/vgname/lvname
+$ lvextend -l +extents /dev/vgname/lvname
+# Format the logical volume as swap space
+$ swapon -va /dev/vgname/lvname
 ```
