@@ -1043,6 +1043,7 @@ The mapping file-naming convention is `/etc/auto.name`
 
 4- Start and enable the automounter service.
 ```bash
+$ systemctl start autofs
 $ systemctl enable --now autofs
 ```
 
@@ -1061,3 +1062,92 @@ $ nano /etc/auto.master.d/demo.autofs
 ```bash
 /mnt/docs -rw,sync serverb:/shares/docs
 ```
+---
+
+# Controlling the Boot Process
+
+## Rebooting & Shutting Down
+
+```bash
+$ systemctl poweroff # shut down
+$ systemctl reboot # reboot
+```
+
+## Selecting a Systemd Target
+
+Commonly Used Targets
+| Target | purpose |
+| ----------- | ----------- |
+| `graphical.target` | System supports multiple users, graphical- and text-based logins. |
+| `multi-user.target` | System supports multiple users, text-based logins only. |
+| `rescue.target` | sulogin prompt, basic system initialization completed. |
+| `emergency.target` | sulogin prompt, initramfs pivot complete, and system root mounted on / read only. | 
+
+### Selecting a Target at Runtime
+
+```bash
+# switch to mult-user.target
+$ systemctl isolate multi-user.target
+```
+
+### Set Default Target
+
+```bash
+# get default target
+$ systemctl get-default
+# set default target
+$ systemctl set-default graphical.target
+```
+
+### Selecting different Target at Boot Time
+
+1- Boot or reboot the system.
+
+2- Interrupt the boot loader menu countdown by pressing any key
+
+3- Move the cursor to the kernel entry that you want to start.
+
+4- Press **e** to edit the current entry.
+
+5- Move the cursor to the line that starts with linux. This is the kernel command line.
+
+6- Append `systemd.unit=target.target`. For example, `systemd.unit=emergency.target`.
+
+7- Press **Ctrl+x** to boot with these changes.
+
+## Resetting the Root Password
+
+1- Edit the kernel parameters following steps 1-5 above.
+
+2- Move the cursor to the kernel command line (the line that starts with **linux**).
+
+3- Append `rd.break`
+
+4- Press **Ctrl+x** to boot with the changes.
+
+Use the following procedure to reset `root` password
+
+1- Remount `/sysroot` as read/write.
+```bash
+$ mount -o remount,rw /sysroot
+```
+
+2- Switch into a **chroot** jail, where /sysroot is treated as the root of the file-system tree.
+```bash
+$ chroot /sysroot
+```
+
+3- Set a new password for `root`
+```bash
+$ passwd root
+```
+4- Make sure that all unlabeled files, including /etc/shadow at this point, get relabeled during boot.
+```bash
+$ touch /.autorelabel
+```
+5- type `exit` twice and the system will continue the booting.
+
+---
+
+# Managing Network Security
+
