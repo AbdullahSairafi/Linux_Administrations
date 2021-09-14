@@ -533,7 +533,7 @@ Example2:
  
 
 `$ nmcli con add con-name eno2 type ethernet ifname enp0s3 
-ipv4.address 192.168.0.5/24 ipv4.gateway 192.168.0.254`
+ipv4.address 192.168.0.5/24 ipv4.gateway 192.168.0.254 ipv4.method manual`
 
 ### Summary of Commands
 
@@ -1000,5 +1000,22 @@ $ vdostats --human-readable
 ## Configuring NFS Server and Client
 
 Please follow the steps in this link:
-https://www.thegeekdiary.com/centos-rhel-7-configuring-an-nfs-server-and-nfs-client/
+- https://www.thegeekdiary.com/centos-rhel-7-configuring-an-nfs-server-and-nfs-client/
+
+- https://cloud.netapp.com/blog/azure-anf-blg-linux-nfs-server-how-to-set-up-server-and-client
+
+
+## Mounting NFS
+```bash
+# mount using DNS
+$ mount -t nfs -o rw,sync serverb:/share /mountpoint
+# mount using IP of NFS server
+$ mount -t nfs -o rw,sync 192.168.1.3:/share /mountpoint
+# persistently mount NFS at boot time 
+$ nano /etc/fstab
+...
+serverb:/share /mountpoint nfs rw,soft 0 0
+```
+
+## Automounting NFS
 
