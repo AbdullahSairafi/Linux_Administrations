@@ -1018,4 +1018,46 @@ serverb:/share /mountpoint nfs rw,soft 0 0
 ```
 
 ## Automounting NFS
+### Creating Indirect Maps
+1- install autofs package
+```bash
+$ yum install autofs
+```
 
+2- Add a master map file to `/etc/auto.master.d` and must have **.autofs** extension
+```bash
+$ nano /etc/auto.master.d/demo.autofs
+# Add the master map entry in the demo.autofs file
+/shares /etc/auto.demo
+```
+
+The `/etc/auto.demo` file contains the mount details. Use an absolute file name. The `auto.demo` file needs to be created before starting the `autofs` service.
+
+3- Create the mapping files. Each mapping file identifies the mount point, mount options, and source location to mount for a set of automounts.
+```bash
+$ nano /etc/auto.demo
+# add the following entry into the file
+work -rw,sync serverb:/shares/work
+```
+The mapping file-naming convention is `/etc/auto.name`
+
+4- Start and enable the automounter service.
+```bash
+$ systemctl enable --now autofs
+```
+
+### Direct Maps
+
+1- Add a master map file to `/etc/auto.master.d` and must have **.autofs** extension
+```bash
+$ nano /etc/auto.master.d/demo.autofs
+# Add the master map entry in the demo.autofs file
+/- /etc/auto.direct
+```
+
+*Note: All direct map entries use `/-` as the base directory*
+
+2- Create the mapping file `/etc/auto.direct` with the following content
+```bash
+/mnt/docs -rw,sync serverb:/shares/docs
+```
