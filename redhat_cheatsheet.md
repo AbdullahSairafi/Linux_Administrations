@@ -726,7 +726,93 @@ Examples:
 
 # Managing SELinux Security
 
-Coming Soon ;)
+## Changing the SELinux Enforcement Mode
+
+- Change current enforcement Mode 
+```bash
+$ getenforce # get current enforcement mode
+# set mode to either Enforcing or Permissive
+$ setenforce <Enforcing | Permissive>
+```
+
+- Change default enforcement mode
+```bash
+$ nano /etc/selinux/config
+...
+# set SELINUX parameter to desired mode (enforcing, permissive, disabled)
+SELINUX=enforcing
+```
+
+## Controlling SELinux File Context
+
+- Changing SELinux context of a file using `chcon`
+```bash
+$ mkdir /virtual
+# -Z option to view file context
+$ ls -Zd /virtual
+drwxr-xr-x. root root unconfined_u:object_r:default_t:s0 /virtual
+# change file context 
+$ chcon -t httpd_sys_content_t /virtual
+drwxr-xr-x. root root unconfined_u:object_r:httpd_sys_content_t:s0 /virtual
+```
+*Note: `chcon` is **not** the recommended way to change file context. use `semanage fcontext` and `restorecon` instead.*
+
+Changing SELinux context of a file using `semanage fcontext` and `restorecon`
+
+1. Initial SELinux context
+```bash
+# create file1 and file2 and view their context
+$ touch /tmp/file{1,2}
+$ ls -Z /tmp/file*
+unconfined_u:object_r:user_tmp_t:s0 /tmp/file1
+unconfined_u:object_r:user_tmp_t:s0 /tmp/file2
+# move file1 and copy file2 to same directory
+$ mv /tmp/file1 /var/www/html/
+$ cp /tmp/file2 /var/www/html/
+# view their contexts again & notice the difference
+$ ls -Z /var/www/html/file*
+unconfined_u:object_r:user_tmp_t:s0 /var/www/html/file1
+unconfined_u:object_r:httpd_sys_content_t:s0 /var/www/html/file2
+```
+2. Correcting the context for files in the same directory
+```bash
+# -R change contexts recursively
+$ restorecon -Rv /var/www/
+$ ls -Z /var/www/html/file*
+unconfined_u:object_r:httpd_sys_content_t:s0 /var/www/html/file1
+unconfined_u:object_r:httpd_sys_content_t:s0 /var/www/html/file2
+```
+
+3. Adding a context to a directory
+```bash
+# create a directory and view its context 
+$ mkdir /virtual
+$ touch /virtual/index.html
+$ ls -Zd /virtual/
+drwxr-xr-x. root root unconfined_u:object_r:default_t:s0 /virtual/
+$ ls -Z /virtual/
+-rw-r--r--. root root unconfined_u:object_r:default_t:s0 index.html
+# add new context
+$ semanage fcontext -a -t httpd_sys_content_t '/virtual(/.*)?'
+$ restorecon -RFvv /virtual
+# view changes in context
+$ ls -Zd /virtual/
+$ ls -Z /virtual/
+```
+
+## Adjusting SELinux Policy with Booleans
+
+Summary of SELinux booleans commands
+```bash 
+# list all booleans and their state.
+$ getsebool -a
+# set boolean to on or off
+$ setbool <Bool_Name> <on \| off>
+# example
+$ setsebool httpd_enable_homedirs on
+# -P option modifies booleans persistantly across reboots
+$ setsebool -P httpd_enable_homedirs on
+```
 
 # Managing Basic Storage
 
