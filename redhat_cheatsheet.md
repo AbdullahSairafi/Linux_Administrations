@@ -1093,10 +1093,8 @@ $ systemctl isolate multi-user.target
 ### Set Default Target
 
 ```bash
-# get default target
-$ systemctl get-default
-# set default target
-$ systemctl set-default graphical.target
+$ systemctl get-default # get default target 
+$ systemctl set-default graphical.target # set default target
 ```
 
 ### Selecting different Target at Boot Time
@@ -1150,4 +1148,126 @@ $ touch /.autorelabel
 ---
 
 # Managing Network Security
+
+Coming Soon :)
+
+---
+
+# Running Containers
+
+## Basic Containers
+
+1- Installing Container Packages
+```bash
+$ yum install container-tools
+```
+
+2- Pull container image from a registry
+```bash
+$ podman pull registry.lab.example.com/rhel8/httpd-24:latest
+# list available container images
+$ podman images
+```
+
+3- Run the container image
+```bash
+# run container image and name it myweb and assign it a /bin/bash shell. 
+$ podman run --name myweb -it registry.lab.example.com/rhel8/httpd-24 /bin/bash
+```
+Common options when running a container image:
+
+- `-t` pseudo-terminal is
+allocated for the container.
+- `-i` the container accepts standard input
+- `-d` run container in the background (detatched)
+
+4- Run a command in a container and remove it
+```bash
+# run httpd -v command and remove container afterwards
+podman run --rm registry.lab.example.com/rhel8/httpd-24 httpd -v
+```
+
+## Finding and Managin Containers
+
+1- Find a container image
+```bash
+# find container images that include "rhel8"
+$ podman search registry.redhat.io/rhel8
+```
+
+2- Inspecting container images
+```bash
+#inspect a remote container image
+$ skopeo inspect docker://registry.redhat.io/rhel8/python-36
+
+#inspect a local container image
+$ podman inspect registry.redhat.io/rhel8/python-36 
+```
+
+3- Removing local container images
+```bash
+$ podman rmi registry.redhat.io/rhel8 python-36:latest
+# confirm the image has been deleted
+$ podman images
+```
+
+## Advanced Container Management
+
+- Mapping container host ports to container
+
+```bash
+# map host port 8000->8080 port in the container
+$ podman run -d -p 8000:8080 registry.redhat.io/rhel8/httpd-24
+# list all port mappings
+$ podman port -a
+# open host firewall port to allow connections
+$ firewall-cmd --add-port=8000/tcp
+```
+
+*Note: It is necessary to run `podman` as `root` when opening host ports below **1024**.*
+
+- Passing Environment Variables to configure a container
+
+```bash
+# use inspect to get information about variables and what they do
+$ podman inspect registry.redhat.io/rhel8/mariadb-103:1-102
+
+# use -e option to pass environment variables
+$ podman run -d --name container_name -e MYSQL_USER=user_name -e MYSQL_PASSWORD=user_password -e MYSQL_DATABASE=database_name -e MYSQL_ROOT_PASSWORD=mysql_root_password -p 3306:3306 registry.redhat.io/rhel8/mariadb-103:1-102
+```
+
+## Managing Containers
+
+| Command | Usage |
+| ----------- | ----------- |
+| `$ podman ps` | List running containers. |
+| `$ podman ps -a` | List all containers. |
+| `$ podman stop <Container_Name>` | Stop running container. |
+| `$ podman rm <Container_Name>` | Remove stopped container from host. |
+| `$ podman restart <Container_Name>` | Restart stopped container. |
+| `$ podman kill <Container_Name>` | Terminate container. |
+
+## Running Commands in a Container
+
+- Run a command in a running container
+```bash
+$ podman exec my_webserver cat /etc/redhat-release
+```
+- Attach an interactive shell to a running container
+```bash
+$ podman exec -it my_webserver /bin/bash
+```
+
+## Attaching Pesistant Storage to a Container
+
+The following command mounts `/home/user/dbfiles` host directory to `/var/lib/mysql` directory in the container. the `Z` option applies SELinux context type to host directory.
+
+```bash
+# -v option to mount a volume
+$ podman run -d --name mydb -v /home/user/dbfiles:/var/lib/mysql:Z -e MYSQL_USER=user -e MYSQL_PASSWORD=redhat -e MYSQL_DATABASE=inventory registry redhat.io/rhel8/mariadb-103:1-102
+```
+
+## Managing Containers as Services
+
+Coming soon :)
 
