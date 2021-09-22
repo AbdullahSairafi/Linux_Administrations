@@ -807,12 +807,12 @@ Summary of SELinux booleans commands
 # list all booleans and their state.
 $ getsebool -a
 # set boolean to on or off
-$ setbool <Bool_Name> <on \| off>
+$ setbool <Bool_Name> <on|off>
 # example
 $ setsebool httpd_enable_homedirs on
 # -P option modifies booleans persistantly across reboots
 $ setsebool -P httpd_enable_homedirs on
-```
+``` 
 
 # Managing Basic Storage
 
@@ -1233,10 +1233,59 @@ $ touch /.autorelabel
 
 ---
 
-# Managing Network Security
+# Managing Network Security (Firewall)
 
-Coming Soon :)
+## Configuring Firewall From Command Line
 
+Summary of `firewall-cmd` commands
+| `firewall-cmd` command | Usage | 
+| ----------- | ----------- |
+| `--get-default-zone` | Get the default zone. |
+| `--set-default-zone=ZONE` | Set the default zone. (runtime & permanent)
+| `--get-zones` | Get all zones. |
+| `--get-active-zones` | List all zones currently in use. |
+| `--add-source=CIDR [--zone=ZONE]` | Route all traffic coming from the IP address or network/netmask to the specified zone. If no --zone= option is provided, the default zone is used. | 
+| `--remove-source=CIDR [--zone=ZONE]` | Remove the rule routing all traffic from the zone coming from the IP address or network/ netmask network. If no --zone= option is provided, the default zone is used. |
+| `--add-interface=INTERFACE [--zone=ZONE]` | Route all traffic coming from INTERFACE to the specified zone. If no --zone= option is provided, the default zone is used. |
+| `--change-interface=INTERFACE [--zone=ZONE]` | Associate the interface with ZONE instead of its current zone. If no --zone= option is provided, the default zone is used. |
+| `--list-all [--zone=ZONE]` | List all configured interfaces, sources, services, and ports for ZONE. If no --zone= option is provided, the default zone is used. |
+| `--list-all-zones` |  Retrieve all information for all zones (interfaces, sources, ports, services). |
+| `--add-service=SERVICE [--zone=ZONE]` | Allow traffic to SERVICE. If no --zone= option is provided, the default zone is used. |
+| `--add-port=PORT/PROTOCOL [--zone=ZONE]` | Allow traffic to the PORT/PROTOCOL port(s). If no --zone= option is provided, the default zone is used. |
+| `--remove-service=SERVICE [--zone=ZONE]` | Remove SERVICE from the allowed list for the zone. If no --zone= option is provided, the default zone is used. |
+| `--remove-port=PORT/PROTOCOL [--zone=ZONE]` | Remove the PORT/PROTOCOL port(s) from the allowed list for the zone. If no --zone= option is provided, the default zone is used. |
+| `--reload` | Drop the runtime configuration and apply the persistent configuration. |
+
+## Managing SELinux Port Labeling
+
+- Listing port labels
+```bash
+$ semanage port -l
+# find ports using grep
+$ semanage port -l | grep ftp
+```
+
+- Managing port labels
+```bash
+# options The -a adds a new port label, the -t denotes the type, the -p denotes the protocol.
+$ semanage port -a -t port_label -p tcp|udp PORTNUMBER
+# example
+$ semanage port -a -t gopher_port_t -p tcp 71
+# view local changes to the default policy
+$ semanage port -l -C
+```
+
+- Removing port labels
+```bash
+# -d for delete
+$ semanage port -d -t gopher_port_t -p tcp 71
+```
+
+- Modifying port bindings
+```bash
+# modify port 71/TCP from gopher_port_t to http_port_t
+$ semanage port -m -t http_port_t -p tcp 71
+```
 ---
 
 # Running Containers
