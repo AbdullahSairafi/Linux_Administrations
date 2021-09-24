@@ -41,14 +41,14 @@ Example:
 
 | Usage | Explanation |
 | ----------- | ----------- |
-| > file | redirect **stdout** to overwrite `file` |
-| >> file | redirect **stdout** to append to `file` |
-| 2> file | redirect **stderr** to overwrite `file` |
-| 2> /dev/null | discard **stderr** error messages by redirecting to `/dev/null` |
-| file 2>&1 | redirect **stdout** and **stderr** to  overwrite the same `file`
-| &> file | redirect **stdout** and **stderr** to  overwrite the same `file` |
-| >> file 2>&1 | redirect **stdout** and **stderr** to append to the same `file` |
-| &>> file | redirect **stdout** and **stderr** to append to the same `file` |
+| `> file` | redirect **stdout** to overwrite `file` |
+| `>> file` | redirect **stdout** to append to `file` |
+| `2> file` | redirect **stderr** to overwrite `file` |
+| `2> /dev/null` | discard **stderr** error messages by redirecting to `/dev/null` |
+| `file 2>&1` | redirect **stdout** and **stderr** to  overwrite the same `file`
+| `&> file` | redirect **stdout** and **stderr** to  overwrite the same `file` |
+| `>> file 2>&1` | redirect **stdout** and **stderr** to append to the same `file` |
+| `&>> file` | redirect **stdout** and **stderr** to append to the same `file` |
 
 ## Constructing Pipelines
 
@@ -191,7 +191,7 @@ or
 
 `$ sudo groupadd -g 10000 group01`
 
-The `-r` option creates a system group using a GID from the range of valid system GIDs listed in the /etc/login.defs file. The SYS_GID_MIN and SYS_GID_MAX configuration items in `/ etc/login.defs` define the range of system GIDs.
+The `-r` option creates a system group using a GID from the range of valid system GIDs listed in the /etc/login.defs file. The SYS_GID_MIN and SYS_GID_MAX configuration items in `/etc/login.defs` define the range of system GIDs.
 
 Example:
 
@@ -533,7 +533,7 @@ Example2:
  
 
 `$ nmcli con add con-name eno2 type ethernet ifname enp0s3 
-ipv4.address 192.168.0.5/24 ipv4.gateway 192.168.0.254 ipv4.method manual`
+ipv4.addresses 192.168.0.5/24 ipv4.gateway 192.168.0.254 ipv4.method manual`
 
 ### Summary of Commands
 
@@ -557,7 +557,7 @@ ipv4.address 192.168.0.5/24 ipv4.gateway 192.168.0.254 ipv4.method manual`
 ### Editing Network Configuration Files
 
 By default, changes made with `nmcli con mod name` are automatically saved to `/etc/sysconfig/network-scripts/ifcfg-name`. That file can also be manually edited with a text
-editor. After doing so, `run nmcli con reload` so that `NetworkManager` reads the configuration
+editor. After doing so, run `nmcli con reload` so that `NetworkManager` reads the configuration
 changes.
 
 ## Configuring Host Names and Name Resolution
@@ -792,7 +792,7 @@ $ ls -Zd /virtual/
 drwxr-xr-x. root root unconfined_u:object_r:default_t:s0 /virtual/
 $ ls -Z /virtual/
 -rw-r--r--. root root unconfined_u:object_r:default_t:s0 index.html
-# add new context
+# add new context for the directory named virtual and its content recursively
 $ semanage fcontext -a -t httpd_sys_content_t '/virtual(/.*)?'
 $ restorecon -RFvv /virtual
 # view changes in context
@@ -944,6 +944,7 @@ $ umount /mnt/data
 $ lvremove /dev/vg01/lv01
 $ vgremove vg01
 $ pvremove /dev/sdb1 /dev/sdb2
+# remeber to remove entry from /etc/fstab if added
 ```
 
 ### Reviewing LVM Status Information
@@ -1041,7 +1042,7 @@ $ lsblk --fs
 # Sample entry in the /etc/fstab file
 UUID=31b9363b-add8-4b46-a4bf-c199cd478c55 /dir1 xfs defaults,x-systemd.requires=stratisd.service 0 0
 ```
-&emsp; *Note: The x-systemd.requires=stratisd.service mount option delays mounting the file system until after systemd starts the stratisd.service during the boot process.*
+&emsp; *Note: The `x-systemd.requires=stratisd` service mount option delays mounting the file system until after systemd starts the stratisd.service during the boot process.*
 
 ## Compressing and Deduplicating Storage with VDO
 
@@ -1104,6 +1105,8 @@ serverb:/share /mountpoint nfs rw,soft 0 0
 ```
 
 ## Automounting NFS
+
+*Note: All autofs setup is done on client side*
 ### Creating Indirect Maps
 1- install autofs package
 ```bash
