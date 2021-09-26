@@ -492,7 +492,7 @@ To prevent root from loggin in set the parameter to **no**
 
 Set the `PasswordAuthentication` parameter to **no**
 
-`$ PasswordAuthentication no`
+`PasswordAuthentication no`
 
 Note: after modifyin the `/etc/ssh/sshd_config` file, reload the `sshd` daemon.
 
@@ -566,9 +566,18 @@ changes.
 
 `$ hostnamectl set-hostname host.example.com`
 
+
+## Configuring Yum Repo
+
+- Given the links to repositries
+```bash
+$ dnf config-manager --add-repo http://content.example.com/rhel8.0/x86_64/dvd/BaseOS
+# verify added repo
+$ ls /etc/yum.repos.d
+```
 ---
 
-# Archiving and Transferring Files
+# Archving and Transferring Files
 
 ## Managing Compressed tar Archives
 
