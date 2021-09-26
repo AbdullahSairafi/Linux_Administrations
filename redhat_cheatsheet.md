@@ -1003,7 +1003,21 @@ $ resize2fs /dev/vg01/lv01
 # Verify the new size of mounted file sysem
 $ df -h /mnt/data
 ```
-5- Extending Swap Space
+
+5- Reducing File System (ext4)
+```bash
+# unmount filesystem
+$ umount /mnt/data
+# reduce the size of the lv filesystem to 100MB
+$ resize2fs /dev/vg01/lv01 100M
+# reduce the lv size 
+$ lvreduce -l 100M /dev/vg01/lv01
+# mount the filesyste
+$ mount -a # if it has entry in /etc/fstab
+# or manually 
+$ mount /dev/vg01/lv01 /mnt/data
+```
+6- Extending Swap Space
 ```bash
 # Deactivate swap space and extend lv 
 $ swapoff -v /dev/vgname/lvname
