@@ -1430,5 +1430,30 @@ $ podman run -d --name mydb -v /home/user/dbfiles:/var/lib/mysql:Z -e MYSQL_USER
 
 ## Managing Containers as Services
 
-Coming soon :)
+1- Create the service directory and enter it
+```bash
+$ mkdir -p ~/.config/systemd/user
+$ cd ~/.config/systemd/user
+```
 
+2- Create `systemd` unit file
+```bash
+# myweb can be replaced by container name
+$ podman generate systemd --name myweb --files --new
+```
+
+3- Stop and delete the container
+```bash
+$ podman stop myweb
+$ podman rm myweb
+```
+
+4- Run container as `systemd` service
+```bash
+# reload user systemd configurations
+$ systemctl --user daemon-reload
+# enable container service
+$ systemctl --user enable --now container-myweb
+# to enable service at boot time
+$ loginctl enable-linger
+```
