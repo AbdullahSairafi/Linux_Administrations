@@ -1,11 +1,13 @@
-# Objective
+# 1 Objective
 
 - Working with Ubuntu and Redhat Linux.
 - Basic user management.
 - Understanding `ssh` login.
 - Passwordless login using key-based authentication.
 
-# Project Description
+--- 
+
+# 2 Project Description
 
 For this project, we will work with two machines, the first is an Ubuntu VM, and the second is a Redhat VM. 
 
@@ -24,9 +26,11 @@ For this project, we will work with two machines, the first is an Ubuntu VM, and
 - `dsuser{1,2}` can use key-based authentication to login to `mcuser{1,2}` and vice-versa.
 - `ssh` can only be used between the two VMs and disabled for all other machines.
 
-# Implementation
+---
 
-## Ubuntu VM
+# 3 Implementation
+
+## 3.1 Ubuntu VM
 
 1. Create users and assign passwords
 
@@ -75,7 +79,7 @@ For this project, we will work with two machines, the first is an Ubuntu VM, and
         PasswordAuthentication yes
     ```
 
-## Redhat VM
+## 3.2 Redhat VM
 
 1. Create users and assign passwords
 
@@ -123,7 +127,7 @@ For this project, we will work with two machines, the first is an Ubuntu VM, and
     ```
 
 
-## Key-based Authentication
+## 3.2 Key-based Authentication
 
 ```bash
 # generate ssh key-pair
@@ -135,7 +139,7 @@ $ ssh-copy-id -i .ssh/key.pub remoteuser@remotehost
 $ ssh -i .ssh/key remoteuser@remotehost
 ```
 
-## Disabling root login using ssh
+## 3.3 Disabling root login using ssh
 
 ```bash
 $ vim /etc/ssh/sshd_config
