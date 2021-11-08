@@ -11,17 +11,17 @@
 
 For this project, we will work with two machines, the first is an Ubuntu VM, and the second is a Redhat VM. 
 
-## Ubuntu VM :
+## 2.1 Ubuntu VM :
 - Has five users named `dsuser{1..5}` (assign them passwords accordingly).
 - The five users mentioned above are part of the `dsgroup`.
 - Disable `root` login through `ssh`.
 
-## Redhat VM :
+## 2.2 Redhat VM :
 - Has five users named `mcuser{1..5}` (assign them passwords accordingly).
 - The five users mentioned above are part of the `mcgroup`.
 - Disable `root` login through `ssh`.
 
-## Other requirements :
+## 2.3 Other requirements :
 
 - `dsuser{1,2}` can use key-based authentication to login to `mcuser{1,2}` and vice-versa.
 - `ssh` can only be used between the two VMs and disabled for all other machines.
