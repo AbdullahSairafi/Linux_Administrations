@@ -127,7 +127,7 @@ For this project, we will work with two machines, the first is an Ubuntu VM, and
     ```
 
 
-## 3.2 Key-based Authentication
+## 3.3 Key-based Authentication
 
 ```bash
 # generate ssh key-pair
@@ -139,7 +139,7 @@ $ ssh-copy-id -i .ssh/key.pub remoteuser@remotehost
 $ ssh -i .ssh/key remoteuser@remotehost
 ```
 
-## 3.3 Disabling root login using ssh
+## 3.4 Disabling root login using ssh
 
 ```bash
 $ vim /etc/ssh/sshd_config
