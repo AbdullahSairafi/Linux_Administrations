@@ -56,11 +56,11 @@ For this project, we will work with two machines, the first is an Ubuntu VM, and
     ```bash
     # Method 1
     # add the IP of redhat VM to /etc/hosts.allow
-    vim /etc/hosts.allow
+    $ vim /etc/hosts.allow
     sshd: 192.168.1.2
 
     # deny all other IPs in /etc/hosts.deny
-    vim /etc/hosts.deny
+    $ vim /etc/hosts.deny
     sshd: ALL
 
     ```
@@ -70,7 +70,7 @@ For this project, we will work with two machines, the first is an Ubuntu VM, and
 
     ```bash
     # Method 2
-    vim /etc/ssh/sshd_config
+    $ vim /etc/ssh/sshd_config
     Match Address 192.168.1.2
         PasswordAuthentication yes
     ```
@@ -101,7 +101,7 @@ For this project, we will work with two machines, the first is an Ubuntu VM, and
 
     ```bash
     # Method 1
-    vim /etc/ssh/sshd_config
+    $ vim /etc/ssh/sshd_config
     Match Address 192.168.1.3
         PasswordAuthentication yes
     ```
@@ -121,3 +121,24 @@ For this project, we will work with two machines, the first is an Ubuntu VM, and
     $ firewall-cmd --zone=public --remove-service=ssh --permanent
     $ firewall-cmd --reload
     ```
+
+
+## Key-based Authentication
+
+```bash
+# generate ssh key-pair
+$ ssh-keygen
+# generated a key-pair named "key" and "key.pub"
+# copy the public key to the remote host
+$ ssh-copy-id -i .ssh/key.pub remoteuser@remotehost
+# key-based authentication login
+$ ssh -i .ssh/key remoteuser@remotehost
+```
+
+## Disabling root login using ssh
+
+```bash
+$ vim /etc/ssh/sshd_config
+# change root login parameter to "no"
+PermitRootLogin no
+```
