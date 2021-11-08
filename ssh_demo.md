@@ -106,6 +106,7 @@ For this project, we will work with two machines, the first is an Ubuntu VM, and
     ```bash
     # Method 1
     $ vim /etc/ssh/sshd_config
+    PassordAuthentication no
     Match Address 192.168.1.3
         PasswordAuthentication yes
     ```
